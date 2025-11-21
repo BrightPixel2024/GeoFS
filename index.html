@@ -1,74 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>GeoFS Flight Tracker</title>
-  <style>
-    #map { height: 100vh; width: 100%; }
-  </style>
+<!-- Google Maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-dHeIlkrTN7zp409tdYkhPD9j0mlhZnU"></script>
+<script>
+  // Google Maps only
+  const map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: 30, lng: -100},
+    zoom: 5
+  });
 
-  <!-- Google Maps -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-dHeIlkrTN7zp409tdYkhPD9j0mlhZnU"></script>
+  // Plane marker
+  const planeMarker = new google.maps.Marker({
+    position: {lat: 30, lng: -100},
+    map: map,
+    icon: 'https://img.icons8.com/color/48/000000/airplane-take-off.png'
+  });
 
-  <!-- Firebase SDKs (modern ES modules) -->
-  <script type="module">
-    // Firebase imports
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+  // Flight path
+  const flightPath = new google.maps.Polyline({
+    path: [],
+    geodesic: true,
+    strokeColor: '#FF0000',
+    strokeOpacity: 1.0,
+    strokeWeight: 2,
+    map: map
+  });
+</script>
 
-    // Your Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyBluNWUyIod2V6ZZuRQmPJY17VNnizOK7k",
-      authDomain: "geofs-92378.firebaseapp.com",
-      projectId: "geofs-92378",
-      storageBucket: "geofs-92378.firebasestorage.app",
-      messagingSenderId: "620097614444",
-      appId: "1:620097614444:web:4e068b6046d7f8cf309e49",
-      measurementId: "G-BB1VPG8X7L"
-    };
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyBluNWUyIod2V6ZZuRQmPJY17VNnizOK7k",
+    authDomain: "geofs-92378.firebaseapp.com",
+    projectId: "geofs-92378",
+    storageBucket: "geofs-92378.firebasestorage.app",
+    messagingSenderId: "620097614444",
+    appId: "1:620097614444:web:4e068b6046d7f8cf309e49",
+    measurementId: "G-BB1VPG8X7L"
+  };
 
-    // --- Google Map ---
-    const map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat: 30, lng: -100},
-      zoom: 5
-    });
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    // Plane marker
-    const planeMarker = new google.maps.Marker({
-      position: {lat: 30, lng: -100},
-      map: map,
-      icon: 'https://img.icons8.com/color/48/000000/airplane-take-off.png'
-    });
-
-    // Flight path
-    const flightPath = new google.maps.Polyline({
-      path: [],
-      geodesic: true,
-      strokeColor: '#FF0000',
-      strokeOpacity: 1.0,
-      strokeWeight: 2,
-      map: map
-    });
-
-    // --- Listen for plane updates ---
-    const planeDoc = doc(db, "flights", "myPlane");
-    onSnapshot(planeDoc, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        const pos = { lat: data.lat, lng: data.lng };
-        planeMarker.setPosition(pos);
-        flightPath.getPath().push(new google.maps.LatLng(pos.lat, pos.lng));
-        map.panTo(pos);
-      }
-    });
-
-    console.log("GeoFS Flight Tracker ready!");
-  </script>
-</head>
-<body>
-</body>
-</html>
+  const planeDoc = doc(db, "flights", "myPlane");
+  onSnapshot(planeDoc, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const pos = { lat: data.lat, lng: data.lng };
+      planeMarker.setPosition(pos);
+      flightPath.getPath().push(new google.maps.LatLng(pos.lat, pos.lng));
+      map.panTo(pos);
+    }
+  });
+</script>
