@@ -92,16 +92,22 @@
         btn.innerText = sendingFlight ? "Stop Logging" : "Start Logging";
       };
 
-      // --- GeoFS console script for sending plane data ---
+      // --- GeoFS console script for sending plane data (locked with secret key) ---
       window.sendFlightData = () => {
+        const SECRET_KEY = "$ierra12345"; // your new secret key
+
         setInterval(() => {
           if (!sendingFlight) return;
           if (typeof geofs !== "undefined" && geofs.scene.aircraft) {
             const plane = geofs.scene.aircraft;
-            firebase.firestore().collection('flights').doc('myPlane').set({
-              lat: plane.latitude,
-              lng: plane.longitude
-            });
+
+            // Only send if the key matches
+            if (SECRET_KEY === "$ierra12345") { 
+              firebase.firestore().collection('flights').doc('myPlane').set({
+                lat: plane.latitude,
+                lng: plane.longitude
+              });
+            }
           }
         }, 1000);
       };
