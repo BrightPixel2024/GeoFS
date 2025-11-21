@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <title>GeoFS Flight Tracker</title>
   <style>
-    #map { height: 100vh; width: 100%; }
+    body, html { margin: 0; padding: 0; height: 100%; width: 100%; }
+    #map { height: 100%; width: 100%; }
     button#flightToggle {
       position: fixed;
       top: 10px;
@@ -27,11 +28,11 @@
   <!-- Google Maps -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-dHeIlkrTN7zp409tdYkhPD9j0mlhZnU"></script>
 
-  <!-- Firebase compat (for console script) -->
+  <!-- Firebase compat (for GeoFS console) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-  <!-- Modern Firebase ES module for map updates -->
+  <!-- Firebase ES module for live updates -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
@@ -49,8 +50,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- Initialize Map after DOM loaded ---
     window.onload = () => {
+      // --- Initialize Google Map ---
       const map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 30, lng: -100},
         zoom: 5
@@ -86,9 +87,12 @@
       // --- Start/Stop Button ---
       let sendingFlight = false;
       const btn = document.getElementById('flightToggle');
-      btn.onclick = () => sendingFlight = !sendingFlight;
+      btn.onclick = () => {
+        sendingFlight = !sendingFlight;
+        btn.innerText = sendingFlight ? "Stop Logging" : "Start Logging";
+      };
 
-      // --- GeoFS Console Script for sending plane data ---
+      // --- GeoFS console script for sending plane data ---
       window.sendFlightData = () => {
         setInterval(() => {
           if (!sendingFlight) return;
@@ -102,7 +106,7 @@
         }, 1000);
       };
 
-      console.log("Tracker ready! Call sendFlightData() in GeoFS console to start sending plane data.");
+      console.log("Tracker ready! In GeoFS console, run sendFlightData() and click Start Logging to begin.");
     };
   </script>
 </body>
